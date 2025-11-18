@@ -1,0 +1,56 @@
+name: Deploy Interior Design Agent
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/app/agents/interiorDesignAgent_initializer.py'
+      - 'src/prompts/InteriorDesignAgentPrompt.txt'
+      - 'src/app/tools/imageCreationTool.py'
+      - '.github/workflows/deploy-interior-design-agent.yml'
+  workflow_dispatch:
+
+jobs:
+  update-agent:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Create .env file from secret
+        run: 'echo "$ENV" > src/.env'
+        shell: bash
+        env:
+          ENV: ${{ secrets.ENV }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'src/requirements.txt'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/requirements.txt
+      
+      - name: Azure Login
+        uses: azure/login@v2.1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Run Interior Design Agent Initializer
+        working-directory: src/app/agents
+        run: |
+          python interiorDesignAgent_initializer.py
+        env:
+          AZURE_AI_AGENT_ENDPOINT: ${{ secrets.AZURE_AI_AGENT_ENDPOINT }}
+          AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME: ${{ secrets.AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME }}
+          AZURE_AI_AGENT_API_VERSION: ${{ secrets.AZURE_AI_AGENT_API_VERSION }}
+      
+      - name: Output completion
+        run: |
+          echo "Interior Design Agent updated successfully!"

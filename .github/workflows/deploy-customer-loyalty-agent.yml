@@ -53,6 +53,7 @@ jobs:
           AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME: ${{ secrets.AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME }}
           AZURE_AI_AGENT_API_VERSION: ${{ secrets.AZURE_AI_AGENT_API_VERSION }}
           APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
+          customer_loyalty: ${{ secrets.CUSTOMER_LOYALTY_AGENT_ID }}
       
       - name: Output completion
         run: |

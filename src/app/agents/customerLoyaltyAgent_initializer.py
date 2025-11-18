@@ -15,7 +15,7 @@ CL_PROMPT_TARGET = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 with open(CL_PROMPT_TARGET, 'r', encoding='utf-8') as file:
     CL_PROMPT = file.read()
 
-project_endpoint= os.getenv("AZURE_AI_AGENT_ENDPOINT")
+project_endpoint = os.environ["AZURE_AI_AGENT_ENDPOINT"]
 agent_id = os.environ["customer_loyalty"]
 
 project_client = AIProjectClient(
@@ -31,9 +31,9 @@ user_functions: Set[Callable[..., Any]] = {
 functions = FunctionTool(user_functions)
 toolset = ToolSet()
 toolset.add(functions)
-project_client.agents.enable_auto_function_calls(tools=functions)
 
 with project_client:
+    project_client.agents.enable_auto_function_calls(tools=functions)
     agent_exists = False
     if agent_id:
         # Check if agent exists.

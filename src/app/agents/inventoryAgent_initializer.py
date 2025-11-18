@@ -49,7 +49,6 @@ with project_client:
         print(f"Created agent, ID: {agent.id}")
 
 
-
 user_functions: Set[Callable[..., Any]] = {
     inventory_check,
 }
@@ -58,5 +57,7 @@ user_functions: Set[Callable[..., Any]] = {
 functions = FunctionTool(user_functions)
 toolset = ToolSet()
 toolset.add(functions)
-project_client.agents.enable_auto_function_calls(tools=functions)
+
+with project_client:
+    project_client.agents.enable_auto_function_calls(tools=functions)
 

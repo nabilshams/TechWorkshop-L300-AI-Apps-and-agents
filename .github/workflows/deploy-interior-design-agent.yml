@@ -15,16 +15,17 @@ jobs:
   update-agent:
     runs-on: ubuntu-latest
     
+    env:
+      AZURE_AI_AGENT_ENDPOINT: ${{ secrets.AZURE_AI_AGENT_ENDPOINT }}
+      AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME: ${{ secrets.AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME }}
+      AZURE_AI_AGENT_API_VERSION: ${{ secrets.AZURE_AI_AGENT_API_VERSION }}
+      APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
+      interior_designer: ${{ secrets.INTERIOR_DESIGNER_AGENT_ID }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Create .env file from secret
-        run: 'echo "$ENV" > src/.env'
-        shell: bash
-        env:
-          ENV: ${{ secrets.ENV }}
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -46,12 +47,6 @@ jobs:
         working-directory: src/app/agents
         run: |
           python interiorDesignAgent_initializer.py
-        env:
-          AZURE_AI_AGENT_ENDPOINT: ${{ secrets.AZURE_AI_AGENT_ENDPOINT }}
-          AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME: ${{ secrets.AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME }}
-          AZURE_AI_AGENT_API_VERSION: ${{ secrets.AZURE_AI_AGENT_API_VERSION }}
-          APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
-          interior_designer: ${{ secrets.INTERIOR_DESIGNER_AGENT_ID }}
       
       - name: Output completion
         run: |

@@ -22,6 +22,16 @@ project_client = AIProjectClient(
     credential=DefaultAzureCredential(),
 )
 
+user_functions: Set[Callable[..., Any]] = {
+    inventory_check,
+}
+
+# Initialize agent toolset with user functions
+functions = FunctionTool(user_functions)
+toolset = ToolSet()
+toolset.add(functions)
+project_client.agents.enable_auto_function_calls(tools=functions)
+
 with project_client:
     agent_exists = False
     if agent_id:
@@ -48,16 +58,4 @@ with project_client:
         )
         print(f"Created agent, ID: {agent.id}")
 
-
-user_functions: Set[Callable[..., Any]] = {
-    inventory_check,
-}
-
-# Initialize agent toolset with user functions
-functions = FunctionTool(user_functions)
-toolset = ToolSet()
-toolset.add(functions)
-
-with project_client:
-    project_client.agents.enable_auto_function_calls(tools=functions)
 

@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 import os
 from dotenv import load_dotenv
 from azure.ai.projects import AIProjectClient
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from azure.ai.inference.models import SystemMessage, UserMessage
 from app.agents.agent_processor import AgentProcessor
 from azure.ai.inference import ChatCompletionsClient
@@ -361,15 +361,25 @@ with open(CORA_FALLBACK_PROMPT_PATH, 'r') as file:
 with open(CART_UPDATE_PROMPT_PATH, 'r') as file:
     CART_UPDATE_PROMPT = file.read()
 
+# Use DefaultAzureCredential for token-based auth (key-based auth is disabled on this resource)
+credential = DefaultAzureCredential()
+
+# Handoff client (Phi-4 via Azure AI Inference SDK)
 handoff_client = ChatCompletionsClient(
     endpoint=validated_env_vars['phi_4_endpoint'],
-    credential=AzureKeyCredential(validated_env_vars['phi_4_api_key']),
+    credential=credential,
+    credential_scopes=["https://cognitiveservices.azure.com/.default"],
     api_version=validated_env_vars['phi_4_api_version']
 )
 
+# LLM client (GPT-4.1 via OpenAI SDK)
+token_provider = get_bearer_token_provider(
+    credential,
+    "https://cognitiveservices.azure.com/.default"
+)
 llm_client = AzureOpenAI(
     azure_endpoint=validated_env_vars['AZURE_OPENAI_ENDPOINT'],
-    api_key=validated_env_vars['AZURE_OPENAI_KEY'],
+    azure_ad_token_provider=token_provider,
     api_version=validated_env_vars['AZURE_OPENAI_API_VERSION'],
 )
 
